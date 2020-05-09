@@ -26,18 +26,28 @@
         <!--inputs-->
         <form>
             <label for="vi">Input Voltage</label>
-            <input type="number" class="form-control" id="vi" placeholder="0" value="0" min="0">
+            <div class="input-group">
+                <input type="number" class="form-control" id="vi" placeholder="0" value="0" min="0">
+                <div class="input-group-append">
+                    <span class="input-group-text">V</span>
+                </div>
+            </div>
 
             <label for="vi">Output Voltage</label>
-            <input type="number" class="form-control" id="vo" placeholder="0" value="0" min="0">
+            <div class="input-group">
+                <input type="number" class="form-control" id="vo" placeholder="0" value="0" min="0">
+                <div class="input-group-append">
+                    <span class="input-group-text">V</span>
+                </div>
+            </div>
 
             <label for="series">Resistor Series</label>
             <select class="custom-select" id="series">
-                <option>E12</option>
-                <option>E24</option>
-                <option>E48</option>
-                <option>E96</option>
-                <option>E192</option>
+                <option value="E12">E12 (10% Tolerance)</option>
+                <option value="E24">E24 (5% Tolerance)</option>
+                <option value="E48">E48 (2% Tolerance)</option>
+                <option value="E96">E96 (1% Tolerance)</option>
+                <option value="E192">E192 (<0.5% Tolerance)</option>
             </select>
 
             <hr>
@@ -47,7 +57,17 @@
         <hr>
 
         <!--results-->
-        <ul class="list-group" id="results"></ul>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">R<sub>1</sub></th>
+                    <th scope="col">R<sub>2</sub></th>
+                </tr>
+            </thead>
+
+            <tbody id="results"></tbody>
+        </table>
+
     </div>
 </body>
 
