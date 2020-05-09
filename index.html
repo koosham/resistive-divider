@@ -1,0 +1,54 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+    <!--meta data-->
+    <meta charset="utf-8">
+    <meta name="description" content="This is an online tool for finding best pair of E series resistors to create a given voltage divider.">
+    <meta name="author" content="Koosha Marashi">
+
+    <!--bootstrap-->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+    <!--calculator-->
+    <script src="./js/resistive-divider.js"></script>
+
+    <title>E Series Resistive Divider</title>
+</head>
+
+<body class="bg-light">
+    <div class="container py-5">
+        <!--description-->
+        <h2>E Series Resistive Divider</h2>
+        <p class="lead">This is an online tool for finding best pair of E series resistors to create a given voltage divider.</p>
+
+        <!--inputs-->
+        <form>
+            <label for="vi">Input Voltage</label>
+            <input type="number" class="form-control" id="vi" placeholder="0" value="0" min="0">
+
+            <label for="vi">Output Voltage</label>
+            <input type="number" class="form-control" id="vo" placeholder="0" value="0" min="0">
+
+            <label for="series">Resistor Series</label>
+            <select class="custom-select" id="series">
+                <option>E12</option>
+                <option>E24</option>
+                <option>E48</option>
+                <option>E96</option>
+                <option>E192</option>
+            </select>
+
+            <hr>
+            <button class="btn btn-primary btn-lg" type="submit" id="calc" onclick="calculate('vi', 'vo', 'series', 'results'); return false;">Calculate</button>
+        </form>
+
+        <hr>
+
+        <!--results-->
+        <ul class="list-group" id="results"></ul>
+    </div>
+</body>
+
+</html>
