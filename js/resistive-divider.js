@@ -53,8 +53,8 @@ function show(destId, resistors)
     var r1 = row.insertCell(0);
     var r2 = row.insertCell(1);
     var error = row.insertCell(2);
-    r1.innerHTML = round(resistors.r1, 2);
-    r2.innerHTML = round(resistors.r2, 2);
+    r1.innerHTML = (resistors.r1 < 1000) ? (round(resistors.r1, 2) + ' K&Omega;') : ((round(resistors.r1, 2) / 1000) + ' M&Omega;');
+    r2.innerHTML = (resistors.r2 < 1000) ? (round(resistors.r2, 2) + ' K&Omega;') : ((round(resistors.r2, 2) / 1000) + ' M&Omega;');
     error.innerHTML = round(resistors.error * 100.0, 4);
 }
 

@@ -18,56 +18,66 @@
 </head>
 
 <body class="bg-light">
-    <div class="container py-5">
+    <div class="container-md py-5">
         <!--description-->
         <h2>E Series Resistive Divider</h2>
-        <p class="lead">This is an online tool for finding best pair of E series resistors to create a given voltage divider.</p>
+        <p class="lead">This is an online tool for finding best pair of <a href="https://en.wikipedia.org/wiki/E_series_of_preferred_numbers" target="_blank">E series resistors</a> to create a given <a href="https://en.wikipedia.org/wiki/Voltage_divider" target="_black">voltage divider</a>.</p>
 
-        <!--inputs-->
-        <form>
-            <label for="vi">Input Voltage</label>
-            <div class="input-group">
-                <input type="number" class="form-control" id="vi" min="0">
-                <div class="input-group-append">
-                    <span class="input-group-text">V</span>
-                </div>
+        <div class="row">
+            <div class="col-md-6">
+                <!--inputs-->
+                <form>
+                    <label for="vi">Input Voltage</label>
+                    <div class="input-group">
+                        <input type="number" class="form-control" id="vi" min="0">
+                        <div class="input-group-append">
+                            <span class="input-group-text">V</span>
+                        </div>
+                    </div>
+
+                    <label for="vi">Output Voltage</label>
+                    <div class="input-group">
+                        <input type="number" class="form-control" id="vo" min="0">
+                        <div class="input-group-append">
+                            <span class="input-group-text">V</span>
+                        </div>
+                    </div>
+
+                    <label for="series">Resistor Series</label>
+                    <select class="custom-select" id="series">
+                        <option value="E12">E12</option>
+                        <option value="E24">E24</option>
+                        <option value="E48">E48</option>
+                        <option value="E96">E96</option>
+                        <option value="E192">E192</option>
+                    </select>
+
+                    <hr>
+                    <button class="btn btn-primary btn-lg" type="submit" id="calc" onclick="calculate('vi', 'vo', 'series', 'results'); return false;">Calculate</button>
+                </form>
             </div>
 
-            <label for="vi">Output Voltage</label>
-            <div class="input-group">
-                <input type="number" class="form-control" id="vo" min="0">
-                <div class="input-group-append">
-                    <span class="input-group-text">V</span>
-                </div>
+            <div class="col-md-3 offset-md-3">
+                <img src=img/voltage_divider.svg height="300px">
             </div>
-
-            <label for="series">Resistor Series</label>
-            <select class="custom-select" id="series">
-                <option value="E12">E12</option>
-                <option value="E24">E24</option>
-                <option value="E48">E48</option>
-                <option value="E96">E96</option>
-                <option value="E192">E192</option>
-            </select>
-
-            <hr>
-            <button class="btn btn-primary btn-lg" type="submit" id="calc" onclick="calculate('vi', 'vo', 'series', 'results'); return false;">Calculate</button>
-        </form>
+        </div>
 
         <br>
 
-        <!--results-->
-        <table class="table table-sm table-striped">
-            <thead>
-                <tr>
-                    <th scope="col">R<sub>1</sub></th>
-                    <th scope="col">R<sub>2</sub></th>
-                    <th scope="col">Error %</th>
-                </tr>
-            </thead>
+        <div class="row">
+            <!--results-->
+            <table class="table table-sm table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">R<sub>1</sub></th>
+                        <th scope="col">R<sub>2</sub></th>
+                        <th scope="col">Error %</th>
+                    </tr>
+                </thead>
 
-            <tbody id="results"></tbody>
-        </table>
+                <tbody id="results"></tbody>
+            </table>
+        </div>
 
     </div>
 </body>
