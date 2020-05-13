@@ -35,6 +35,8 @@ class ResistiveDividerSolver
         this._results = [];
     }
 
+    results(maxSize) { return this._results.slice(0, maxSize); }
+
     find(vi, vo)
     {
         this._results = [];
@@ -61,30 +63,22 @@ class ResistiveDividerSolver
 
         this._results.sort((a, b) => Math.abs(a.error) - Math.abs(b.error));
     }
-
-    results(maxSize)
-    {
-        return this._results.slice(0, maxSize);
-    }
 }
 
 function solve(vinId, voutId, seriesId, tolId, destId)
 {
-    let vi   = Number(document.getElementById(vinId).value);
-    let vo   = Number(document.getElementById(voutId).value);
-    let ss   = document.getElementById(seriesId);
-    let s    = ss.options[ss.selectedIndex].value;
-    let ts   = document.getElementById(tolId);
-    let t    = Number(ts.options[ts.selectedIndex].value.split('%')[0]) / 100;
-    let dest = document.getElementById(destId);
+    let vi     = Number(document.getElementById(vinId).value);
+    let vo     = Number(document.getElementById(voutId).value);
+    let series = document.getElementById(seriesId).value;
+    let tol    = Number(document.getElementById(tolId).value.split('%')[0]) / 100;
+    let dest   = document.getElementById(destId);
 
     if(vi > 0 && vo > 0 && vo < vi)
     {
-        let vd = new ResistiveDividerSolver(E_SERIES_RESISTORS[s], t);
+        let vd = new ResistiveDividerSolver(E_SERIES_RESISTORS[series], tol);
         vd.find(vi, vo);
-        let results = vd.results(RESULTS_SIZE);
         clearResults(dest);
-        results.forEach(r => {
+        vd.results(RESULTS_SIZE).forEach(r => {
             show(dest, r);
         });
     }
@@ -104,19 +98,13 @@ function clearResults(element)
 
 function show(dest, results)
 {
-    let row           = dest.insertRow(-1);
-    let r1            = row.insertCell(0);
-    let r2            = row.insertCell(1);
-    let error         = row.insertCell(2);
-    let vout          = row.insertCell(3);
-    let voutMin       = row.insertCell(4);
-    let voutMax       = row.insertCell(5);
-    r1.innerHTML      = ohmify(results.r1);
-    r2.innerHTML      = ohmify(results.r2);
-    error.innerHTML   = `${round(results.error * 100, 6)}%`;
-    vout.innerHTML    = `${results.vout.toFixed(6)} V`;
-    voutMin.innerHTML = `${results.voutMin.toFixed(6)} V`;
-    voutMax.innerHTML = `${results.voutMax.toFixed(6)} V`;
+    let row                    = dest.insertRow();
+    row.insertCell().innerHTML = ohms(results.r1);
+    row.insertCell().innerHTML = ohms(results.r2);
+    row.insertCell().innerHTML = error(results.error);
+    row.insertCell().innerHTML = volts(results.vout);
+    row.insertCell().innerHTML = volts(results.voutMin);
+    row.insertCell().innerHTML = volts(results.voutMax);
 }
 
 function toScientific(n)
@@ -131,8 +119,18 @@ function round(n, d=0)
     return Math.round((n + Number.EPSILON) * m) / m;
 }
 
-function ohmify(n, digits=2)
+function ohms(n, digits=2)
 {
     let r = round(n, digits);
     return (r < 1000) ? `${r} K&Omega;` : `${r/1000} M&Omega;`;
+}
+
+function volts(n, digits=6)
+{
+    return `${n.toFixed(digits)} V`;
+}
+
+function error(n, digits=6)
+{
+    return `${round(n * 100, digits)}%`;
 }
