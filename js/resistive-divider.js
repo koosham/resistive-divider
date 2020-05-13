@@ -92,7 +92,7 @@ function clearResults(element)
 {
     while(element.hasChildNodes())
     {
-        element.removeChild(results.lastChild);
+        element.removeChild(element.lastChild);
     }
 }
 
