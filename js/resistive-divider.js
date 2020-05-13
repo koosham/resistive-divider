@@ -8,7 +8,25 @@ const E_SERIES_RESISTORS =
 };
 const RESULTS_SIZE = 20;
 
-class VoltageDivider
+class ResistiveDivider
+{
+    constructor(r1, r2, tolerance=0)
+    {
+        this.r1  = r1;
+        this.r2  = r2;
+        this.tol = tolerance;
+    }
+
+    r1Min()      { return this.r1 * (1 - this.tol); }
+    r1Max()      { return this.r1 * (1 + this.tol); }
+    r2Min()      { return this.r2 * (1 - this.tol); }
+    r2Max()      { return this.r2 * (1 + this.tol); }
+    vout(vin)    { return vin * this.r2 / (this.r1 + this.r2); }
+    voutMin(vin) { return vin * this.r2Min() / (this.r1Max() + this.r2Min()); }
+    voutMax(vin) { return vin * this.r2Max() / (this.r1Min() + this.r2Max()); }
+}
+
+class ResistiveDividerSolver
 {
     constructor(resistorPool, resistorTolerance)
     {
@@ -28,13 +46,16 @@ class VoltageDivider
             this.pool.forEach(r2 => {
                 let candidate = toScientific(r2 / r1);
                 let order     = Math.pow(10, (target.e - candidate.e));
-                let _r1       = (order < 1) ? (r1 / order) : r1;
-                let _r2       = (order > 1) ? (r2 * order) : r2;
-                let vout      = vi * _r2 / (_r1 + _r2);
-                let voutMin   = vi * _r2 * (1 - this.tol) / ((_r1  * (1 + this.tol))+ (_r2 * (1 - this.tol)));
-                let voutMax   = vi * _r2 * (1 + this.tol) / ((_r1  * (1 - this.tol))+ (_r2 * (1 + this.tol)));
-                let error     = (vout - vo) / vo;
-                this._results.push({r1: _r1, r2: _r2, error, vout, voutMin, voutMax});
+                let rd        = new ResistiveDivider(order < 1 ? r1/order : r1, order > 1 ? r2*order : r2, this.tol);
+                let e         = (rd.vout(vi) - vo) / vo;
+                this._results.push({
+                    r1:      rd.r1,
+                    r2:      rd.r2,
+                    error:   e,
+                    vout:    rd.vout(vi),
+                    voutMin: rd.voutMin(vi),
+                    voutMax: rd.voutMax(vi)
+                });
             });
         });
 
@@ -59,7 +80,7 @@ function solve(vinId, voutId, seriesId, tolId, destId)
 
     if(vi > 0 && vo > 0 && vo < vi)
     {
-        let vd = new VoltageDivider(E_SERIES_RESISTORS[s], t);
+        let vd = new ResistiveDividerSolver(E_SERIES_RESISTORS[s], t);
         vd.find(vi, vo);
         let results = vd.results(RESULTS_SIZE);
         clearResults(dest);
