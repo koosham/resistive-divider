@@ -10,9 +10,10 @@ const RESULTS_SIZE = 20;
 
 class VoltageDivider
 {
-    constructor(resistorPool)
+    constructor(resistorPool, resistorTolerance)
     {
         this.pool     = resistorPool;
+        this.tol      = resistorTolerance;
         this._results = [];
     }
 
@@ -29,9 +30,11 @@ class VoltageDivider
                 let order     = Math.pow(10, (target.e - candidate.e));
                 let _r1       = (order < 1) ? (r1 / order) : r1;
                 let _r2       = (order > 1) ? (r2 * order) : r2;
-                let _vo       = vi * _r2 / (_r1 + _r2);
-                let _e        = (_vo - vo) / vo;
-                this._results.push({r1: _r1, r2: _r2, vout: _vo, error: _e});
+                let vout      = vi * _r2 / (_r1 + _r2);
+                let voutMin   = vi * _r2 * (1 - this.tol) / ((_r1  * (1 + this.tol))+ (_r2 * (1 - this.tol)));
+                let voutMax   = vi * _r2 * (1 + this.tol) / ((_r1  * (1 - this.tol))+ (_r2 * (1 + this.tol)));
+                let error     = (vout - vo) / vo;
+                this._results.push({r1: _r1, r2: _r2, error, vout, voutMin, voutMax});
             });
         });
 
@@ -44,17 +47,19 @@ class VoltageDivider
     }
 }
 
-function solve(vinId, voutId, seriesId, destId)
+function solve(vinId, voutId, seriesId, tolId, destId)
 {
     let vi   = Number(document.getElementById(vinId).value);
     let vo   = Number(document.getElementById(voutId).value);
     let ss   = document.getElementById(seriesId);
     let s    = ss.options[ss.selectedIndex].value;
+    let ts   = document.getElementById(tolId);
+    let t    = Number(ts.options[ts.selectedIndex].value.split('%')[0]) / 100;
     let dest = document.getElementById(destId);
 
     if(vi > 0 && vo > 0 && vo < vi)
     {
-        let vd = new VoltageDivider(E_SERIES_RESISTORS[s]);
+        let vd = new VoltageDivider(E_SERIES_RESISTORS[s], t);
         vd.find(vi, vo);
         let results = vd.results(RESULTS_SIZE);
         clearResults(dest);
@@ -78,15 +83,19 @@ function clearResults(element)
 
 function show(dest, results)
 {
-    let row         = dest.insertRow(-1);
-    let r1          = row.insertCell(0);
-    let r2          = row.insertCell(1);
-    let error       = row.insertCell(2);
-    let vout        = row.insertCell(3);
-    r1.innerHTML    = ohmify(results.r1);
-    r2.innerHTML    = ohmify(results.r2);
-    vout.innerHTML  = `${results.vout.toFixed(3)} V`;
-    error.innerHTML = `${round(results.error * 100, 3)}%`;
+    let row           = dest.insertRow(-1);
+    let r1            = row.insertCell(0);
+    let r2            = row.insertCell(1);
+    let error         = row.insertCell(2);
+    let vout          = row.insertCell(3);
+    let voutMin       = row.insertCell(4);
+    let voutMax       = row.insertCell(5);
+    r1.innerHTML      = ohmify(results.r1);
+    r2.innerHTML      = ohmify(results.r2);
+    error.innerHTML   = `${round(results.error * 100, 6)}%`;
+    vout.innerHTML    = `${results.vout.toFixed(6)} V`;
+    voutMin.innerHTML = `${results.voutMin.toFixed(6)} V`;
+    voutMax.innerHTML = `${results.voutMax.toFixed(6)} V`;
 }
 
 function toScientific(n)

@@ -52,8 +52,22 @@
                         <option value="E192">E192</option>
                     </select>
 
+                    <label for="tolerance">Resistor Tolerance</label>
+                    <select class="custom-select" id="tolerance">
+                        <option value="10%">10%</option>
+                        <option value="5%">5%</option>
+                        <option value="2%">2%</option>
+                        <option value="1%">1%</option>
+                        <option value="0.5%">0.5%</option>
+                        <option value="0.25%">0.25%</option>
+                        <option value="0.1%">0.1%</option>
+                        <option value="0.05%">0.05%</option>
+                        <option value="0.02%">0.02%</option>
+                        <option value="0.01%">0.01%</option>
+                    </select>
+
                     <hr>
-                    <button class="btn btn-primary btn-lg" type="submit" id="calc" onclick="solve('vi', 'vo', 'series', 'results'); return false;">Calculate</button>
+                    <button class="btn btn-primary btn-lg" type="submit" id="calc" onclick="solve('vi', 'vo', 'series', 'tolerance', 'results'); return false;">Calculate</button>
                 </form>
             </div>
 
@@ -66,13 +80,18 @@
 
         <div class="row">
             <!--results-->
-            <table class="table table-sm table-striped">
+            <table class="table table-sm table-hover">
                 <thead>
                     <tr>
-                        <th scope="col">R<sub>1</sub></th>
-                        <th scope="col">R<sub>2</sub></th>
-                        <th scope="col">Output Voltage</th>
-                        <th scope="col">Error</th>
+                        <th scope="col" rowspan="2">R<sub>1</sub></th>
+                        <th scope="col" rowspan="2">R<sub>2</sub></th>
+                        <th scope="col" rowspan="2">Error</th>
+                        <th scope="col" colspan="3">Output Voltage</th>
+                    </tr>
+                    <tr>
+                        <th scope="col">Expected</th>
+                        <th scope="col">Minimum</th>
+                        <th scope="col">Maximum</th>
                     </tr>
                 </thead>
 
