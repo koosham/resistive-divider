@@ -8,26 +8,64 @@ const E_SERIES_RESISTORS =
 };
 const RESULTS_SIZE = 20;
 
-function findResistorPairs(ratio, pool, max_size)
+class VoltageDivider
 {
-    var results = Array();
-    let target = toScientific(ratio);
-    
-    pool.forEach(r1 => {
-        pool.forEach(r2 => {
-            let candidate = toScientific(r2 / r1);
-            var error = (candidate.m - target.m) / target.m;
-            let order = Math.pow(10, (target.e - candidate.e));
-            results.push({
-                r1:    (order < 1) ? (r1 / order) : r1,
-                r2:    (order > 1) ? (r2 * order) : r2,
-                error: error
+    constructor(resistorPool)
+    {
+        this.pool     = resistorPool;
+        this._results = [];
+    }
+
+    find(vi, vo)
+    {
+        this._results = [];
+
+        let ratio  = vo / (vi - vo); // (r2 / r1)
+        let target = toScientific(ratio);
+        
+        this.pool.forEach(r1 => {
+            this.pool.forEach(r2 => {
+                let candidate = toScientific(r2 / r1);
+                let order     = Math.pow(10, (target.e - candidate.e));
+                let _r1       = (order < 1) ? (r1 / order) : r1;
+                let _r2       = (order > 1) ? (r2 * order) : r2;
+                let _vo       = vi * _r2 / (_r1 + _r2);
+                let _e        = (_vo - vo) / vo;
+                this._results.push({r1: _r1, r2: _r2, vout: _vo, error: _e});
             });
         });
-    });
 
-    results.sort((a, b) => Math.abs(a.error) - Math.abs(b.error));
-    return results.slice(0, max_size);
+        this._results.sort((a, b) => Math.abs(a.error) - Math.abs(b.error));
+    }
+
+    results(maxSize)
+    {
+        return this._results.slice(0, maxSize);
+    }
+}
+
+function solve(vinId, voutId, seriesId, destId)
+{
+    let vi   = Number(document.getElementById(vinId).value);
+    let vo   = Number(document.getElementById(voutId).value);
+    let ss   = document.getElementById(seriesId);
+    let s    = ss.options[ss.selectedIndex].value;
+    let dest = document.getElementById(destId);
+
+    if(vi > 0 && vo > 0 && vo < vi)
+    {
+        let vd = new VoltageDivider(E_SERIES_RESISTORS[s]);
+        vd.find(vi, vo);
+        let results = vd.results(RESULTS_SIZE);
+        clearResults(dest);
+        results.forEach(r => {
+            show(dest, r);
+        });
+    }
+    else
+    {
+        console.log('Input error');
+    }
 }
 
 function clearResults(element)
@@ -38,38 +76,17 @@ function clearResults(element)
     }
 }
 
-function show(dest, resistors)
+function show(dest, results)
 {
-    let row = dest.insertRow(-1);
-    let r1 = row.insertCell(0);
-    let r2 = row.insertCell(1);
-    let error = row.insertCell(2);
-    r1.innerHTML = ohmify(resistors.r1);
-    r2.innerHTML = ohmify(resistors.r2);
-    error.innerHTML = round(resistors.error * 100, 4);
-}
-
-function calculate(viId, voId, seriesId, destId)
-{
-    let vi = Number(document.getElementById(viId).value);
-    let vo = Number(document.getElementById(voId).value);
-    let ss = document.getElementById(seriesId);
-    let s = ss.options[ss.selectedIndex].value;
-    let dest = document.getElementById(destId);
-
-    if(vi > 0 && vo > 0 && vo < vi)
-    {
-        let ratio = vo / (vi - vo); // (r2 / r1)
-        let resistorPairs = findResistorPairs(ratio, E_SERIES_RESISTORS[s], RESULTS_SIZE);
-        clearResults(dest);
-        resistorPairs.forEach(p => {
-            show(dest, p)
-        });
-    }
-    else
-    {
-        console.log('Input error');
-    }
+    let row         = dest.insertRow(-1);
+    let r1          = row.insertCell(0);
+    let r2          = row.insertCell(1);
+    let error       = row.insertCell(2);
+    let vout        = row.insertCell(3);
+    r1.innerHTML    = ohmify(results.r1);
+    r2.innerHTML    = ohmify(results.r2);
+    vout.innerHTML  = `${results.vout.toFixed(3)} V`;
+    error.innerHTML = `${round(results.error * 100, 3)}%`;
 }
 
 function toScientific(n)
